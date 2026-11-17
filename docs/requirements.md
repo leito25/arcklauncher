@@ -25,7 +25,7 @@ packages can follow after the basic integration is proven.
 
 ## Decisions to make
 
-- Which operating system is the first development and release target?
+- Which Windows versions are supported for development and release?
 - What are the game metadata and player profile schemas and their versioning
   and migration rules?
 - Where should writable user data live on each supported platform?

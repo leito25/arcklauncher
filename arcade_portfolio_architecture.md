@@ -1,5 +1,13 @@
 # Arcade Portfolio: Architecture, Specifications & AI Prompt Guide
 
+> **Status:** This is the initial proposed architecture, not a description of
+> completed functionality. Windows is the first development target. The
+> current CMake workspace discovers and launches a standalone SFML circle
+> sample; SDK, shared statistics, and packaging remain to be designed and
+> implemented. Executables are copied to `Deployment`, but deploying Qt
+> dependencies requires the separate `windeployqt` step in the README. See
+> [implementation todos](docs/todos.md).
+
 ## 1. Project Overview
 A professional-grade, multi-platform arcade collection acting as a C++ portfolio showcase. 
 *   **Launcher:** A modern Qt6 (QML) Launcher that dynamically discovers and runs standalone game executables.
@@ -9,7 +17,7 @@ A professional-grade, multi-platform arcade collection acting as a C++ portfolio
 ---
 
 ## 2. Workspace & Deployment Structure (Monorepo)
-Your repository separates source code from the final compiled product. CMake will automatically move compiled binaries into the `Deployment` folder.
+Your repository separates source code from the final compiled product. CMake copies compiled binaries into the `Deployment` folder.
 
 ```text
 ArcadeWorkspace/               
@@ -20,7 +28,7 @@ ArcadeWorkspace/
 │   └── Games/                 
 │       ├── TemplateSFML/      <-- Base boilerplate for new games
 │       └── Tetris/            
-└── Deployment/                <-- Generated automatically by CMake POST_BUILD
+└── Deployment/                <-- Generated automatically by CMake
     ├── ArcadeLauncher.exe     
     ├── data/
     │   ├── profile.json       <-- Shared analytics data
@@ -59,19 +67,19 @@ ArcadeWorkspace/
 ## 4. GitHub Project Roadmap (Implementation Phases)
 
 ### Phase 1: Foundation & The Data Layer
-*   [ ] **Task 1.1:** Initialize Git repository and setup the root `CMakeLists.txt` monorepo structure.
+*   [x] **Task 1.1:** Initialize Git repository and setup the root `CMakeLists.txt` monorepo structure.
 *   [ ] **Task 1.2:** Implement `ArcadeSDK` (C++). Write the JSON parser, `.lock` file mutex, and `extern "C"` wrappers.
 *   [ ] **Task 1.3:** Write a dummy C++ Console App to test linking to the SDK and writing to `profile.json`.
 
 ### Phase 2: The Launcher Framework
-*   [ ] **Task 2.1:** Setup Qt6/QML project in CMake.
-*   [ ] **Task 2.2:** Write the C++ `GameScanner` class to read `meta.json` files from the `games/` folder.
+*   [x] **Task 2.1:** Setup Qt6/QML project in CMake.
+*   [x] **Task 2.2:** Write the C++ `GameScanner` class to read `meta.json` files from the `games/` folder.
 *   [ ] **Task 2.3:** Build the QML UI to bind the `GameScanner` data to a visual grid or carousel.
-*   [ ] **Task 2.4:** Implement `QProcess` in the C++ backend to launch executables.
+*   [x] **Task 2.4:** Implement `QProcess` in the C++ backend to launch executables.
 *   [ ] **Task 2.5:** Implement `QFileSystemWatcher` to read `profile.json` and display global playtime in the UI.
 
 ### Phase 3: Proving the End-to-End Loop
-*   [ ] **Task 3.1:** Create `TemplateSFML` project using SFML 3.0 via `FetchContent` in CMake.
+*   [x] **Task 3.1:** Create `TemplateSFML` project using SFML 3.0 via `FetchContent` in CMake.
 *   [ ] **Task 3.2:** Link `TemplateSFML` to the `ArcadeSDK` to report playtime on exit.
 *   [ ] **Task 3.3:** Build **Tetris** using the template.
 *   [ ] **Task 3.4:** Integration Test: Launcher -> Plays Tetris -> Closes Tetris -> Launcher UI updates.
