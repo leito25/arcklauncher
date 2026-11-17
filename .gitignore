@@ -1,0 +1,11 @@
+# Generated build and deployment output
+build/
+Deployment/
+out/
+
+# Editor and OS files
+.vs/
+.vscode/
+*.user
+Thumbs.db
+.DS_Store
