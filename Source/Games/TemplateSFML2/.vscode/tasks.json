@@ -1,0 +1,49 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Game: Build Debug",
+            "type": "process",
+            "command": "powershell",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\..\\..\\..\\scripts\\game.ps1", "-GameDirectory", "${workspaceFolder}", "-GameName", "TemplateSFML2", "-Configuration", "Debug"],
+            "group": { "kind": "build", "isDefault": true },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Game: Build Release",
+            "type": "process",
+            "command": "powershell",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\..\\..\\..\\scripts\\game.ps1", "-GameDirectory", "${workspaceFolder}", "-GameName", "TemplateSFML2", "-Configuration", "Release"],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Game: Test Debug",
+            "type": "process",
+            "command": "powershell",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\..\\..\\..\\scripts\\game.ps1", "-GameDirectory", "${workspaceFolder}", "-GameName", "TemplateSFML2", "-Action", "Test", "-Configuration", "Debug"],
+            "group": "test",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Game: Package Release",
+            "type": "process",
+            "command": "powershell",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\..\\..\\..\\scripts\\game.ps1", "-GameDirectory", "${workspaceFolder}", "-GameName", "TemplateSFML2", "-Action", "Package", "-Configuration", "Release"],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Game: Deploy Debug",
+            "type": "process",
+            "command": "powershell",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\..\\..\\..\\scripts\\game.ps1", "-GameDirectory", "${workspaceFolder}", "-GameName", "TemplateSFML2", "-Action", "Deploy", "-Configuration", "Debug"],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Game: Deploy Release",
+            "type": "process",
+            "command": "powershell",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\..\\..\\..\\scripts\\game.ps1", "-GameDirectory", "${workspaceFolder}", "-GameName", "TemplateSFML2", "-Action", "Deploy", "-Configuration", "Release"],
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

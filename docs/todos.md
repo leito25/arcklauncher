@@ -15,11 +15,21 @@
 
 ## Player statistics and SDK
 
-- [ ] Design profile storage, schema, locking, and recovery ([#4](https://github.com/leito25/arcklauncher/issues/4)).
-- [ ] Define and implement the SDK integration contract ([#5](https://github.com/leito25/arcklauncher/issues/5)).
-- [ ] Track and display playtime, high scores, and achievements.
+- [x] Implement the initial local profile schema, locking, recovery behavior and C ABI.
+- [x] Record SFML 3 sample playtime on normal exit.
+- [ ] Integrate SFML 2 and real game scores and achievements.
+- [ ] Display profile statistics in the launcher.
+- [ ] Design profile migrations and cross-platform validation ([#4](https://github.com/leito25/arcklauncher/issues/4), [#5](https://github.com/leito25/arcklauncher/issues/5)).
+
+## Web and mobile (planned)
+
+- [ ] Design a web game catalog and responsive launcher.
+- [ ] Build a browser game sample with touch controls and local statistics.
+- [ ] Evaluate PWA and mobile wrappers; design optional cross-device sync.
 
 ## Distribution
 
-- [ ] Add automated builds and tests.
+- [x] Add Windows automated builds and tests for both SFML samples.
+- [x] Add Windows setup, VS Code tasks, and a development ZIP workflow.
+- [x] Add per-game Debug, Release, testing, packaging and launcher deployment workflows.
 - [ ] Define packaging, dependency deployment, and licensing for each platform.

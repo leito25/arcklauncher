@@ -5,7 +5,9 @@ out/
 
 # Editor and OS files
 .vs/
-.vscode/
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
 *.user
 Thumbs.db
 .DS_Store

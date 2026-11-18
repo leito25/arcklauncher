@@ -17,8 +17,13 @@ GameScanner::GameScanner(const QString &gamesDirectory, QObject *parent)
     connect(&m_process, &QProcess::finished, this, [this](int exitCode, QProcess::ExitStatus status) {
         if (status == QProcess::CrashExit)
             setError(tr("The game stopped unexpectedly."));
-        else if (exitCode != 0)
-            setError(tr("The game exited with code %1.").arg(exitCode));
+        else if (exitCode != 0) {
+            QString message = tr("The game exited with code %1.").arg(exitCode);
+            const QString details = QString::fromUtf8(m_process.readAllStandardError()).trimmed().left(1024);
+            if (!details.isEmpty())
+                message += "\n" + details;
+            setError(message);
+        }
         emit runningChanged();
     });
     connect(&m_process, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {

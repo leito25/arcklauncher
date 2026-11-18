@@ -10,9 +10,9 @@ qt_add_qml_module(ArcadeLauncher
 target_link_libraries(ArcadeLauncher PRIVATE Qt6::Quick Qt6::QuickControls2)
 
 add_custom_target(DeployArcadeLauncher ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_SOURCE_DIR}/Deployment"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${ARCADE_DEPLOYMENT_DIR}"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "$<TARGET_FILE:ArcadeLauncher>" "${PROJECT_SOURCE_DIR}/Deployment/"
+        "$<TARGET_FILE:ArcadeLauncher>" "${ARCADE_DEPLOYMENT_DIR}/"
     DEPENDS ArcadeLauncher
     VERBATIM
 )

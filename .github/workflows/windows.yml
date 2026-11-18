@@ -1,0 +1,42 @@
+name: Windows build and test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [Debug, Release]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          arch: win64_msvc2022_64
+          cache: true
+      - name: Build and test both SFML versions
+        shell: pwsh
+        run: ./setup.ps1 -Action Test -Configuration ${{ matrix.configuration }} -QtPath "$env:QT_ROOT_DIR"
+
+  game:
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        game:
+          - directory: Template SFML3
+            name: TemplateSFML
+          - directory: TemplateSFML2
+            name: TemplateSFML2
+        configuration: [Debug, Release]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build, test and package the standalone game
+        shell: pwsh
+        run: |
+          $action = if ('${{ matrix.configuration }}' -eq 'Release') { 'Package' } else { 'Test' }
+          ./scripts/game.ps1 -GameDirectory "Source\Games\${{ matrix.game.directory }}" -GameName '${{ matrix.game.name }}' -Action $action -Configuration '${{ matrix.configuration }}'

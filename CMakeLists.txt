@@ -8,8 +8,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(ARCADE_BUILD_LAUNCHER "Build the Qt launcher" ON)
 option(ARCADE_BUILD_SFML_TEMPLATE "Build the SFML template game" ON)
+set(ARCADE_DEPLOYMENT_DIR "${CMAKE_SOURCE_DIR}/Deployment" CACHE PATH "Development deployment directory")
 
 include(CTest)
+include(cmake/ArcadeSDKDependencies.cmake)
+add_subdirectory(Source/ArcadeSDK)
 
 if(ARCADE_BUILD_LAUNCHER)
     find_package(Qt6 6.5 REQUIRED COMPONENTS Quick QuickControls2)
@@ -17,17 +20,6 @@ if(ARCADE_BUILD_LAUNCHER)
 endif()
 
 if(ARCADE_BUILD_SFML_TEMPLATE)
-    include(FetchContent)
-    set(BUILD_SHARED_LIBS OFF)
-    set(SFML_BUILD_AUDIO OFF CACHE BOOL "Build SFML audio")
-    set(SFML_BUILD_NETWORK OFF CACHE BOOL "Build SFML network")
-    set(SFML_BUILD_EXAMPLES OFF CACHE BOOL "Build SFML examples")
-    set(SFML_BUILD_TEST_SUITE OFF CACHE BOOL "Build SFML tests")
-    FetchContent_Declare(SFML
-        GIT_REPOSITORY https://github.com/SFML/SFML.git
-        GIT_TAG 3.0.2
-        GIT_SHALLOW TRUE
-    )
-    FetchContent_MakeAvailable(SFML)
-    add_subdirectory(Source/Games/TemplateSFML)
+    include(cmake/SFML3.cmake)
+    add_subdirectory("Source/Games/Template SFML3")
 endif()

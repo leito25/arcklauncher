@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Arcade: Debug Launcher",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\Deployment\\Debug\\ArcadeLauncher.exe",
+            "cwd": "${workspaceFolder}\\Deployment\\Debug",
+            "preLaunchTask": "Arcade: Build Debug"
+        },
+        {
+            "name": "Arcade: Run Release",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\Deployment\\Release\\ArcadeLauncher.exe",
+            "cwd": "${workspaceFolder}\\Deployment\\Release",
+            "preLaunchTask": "Arcade: Build Release"
+        }
+    ]
+}

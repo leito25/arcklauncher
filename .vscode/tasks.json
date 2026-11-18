@@ -1,0 +1,35 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Arcade: Build Debug",
+            "type": "process",
+            "command": "powershell",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\setup.ps1", "-Configuration", "Debug"],
+            "group": { "kind": "build", "isDefault": true },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Arcade: Build Release",
+            "type": "process",
+            "command": "powershell",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\setup.ps1", "-Configuration", "Release"],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Arcade: Test Debug",
+            "type": "process",
+            "command": "powershell",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\setup.ps1", "-Action", "Test", "-Configuration", "Debug"],
+            "group": "test",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Arcade: Package Release",
+            "type": "process",
+            "command": "powershell",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\setup.ps1", "-Action", "Package", "-Configuration", "Release"],
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

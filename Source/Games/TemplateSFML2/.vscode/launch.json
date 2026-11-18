@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Game: Debug",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\build\\Debug\\Debug\\TemplateSFML2.exe",
+            "cwd": "${workspaceFolder}\\build\\Debug\\stage\\games\\TemplateSFML2",
+            "preLaunchTask": "Game: Build Debug"
+        },
+        {
+            "name": "Game: Run Release",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\build\\Release\\Release\\TemplateSFML2.exe",
+            "cwd": "${workspaceFolder}\\build\\Release\\stage\\games\\TemplateSFML2",
+            "preLaunchTask": "Game: Build Release"
+        }
+    ]
+}

@@ -8,6 +8,7 @@
 #include <QTemporaryDir>
 #include <QTest>
 #include <QTimer>
+#include <cstdio>
 
 class GameScannerTests : public QObject
 {
@@ -17,6 +18,7 @@ private slots:
     void discoversAndLaunchesGame();
     void reportsInvalidMetadataAndMissingExecutable();
     void reportsLaunchFailure();
+    void reportsGameErrorDetails();
 };
 
 static QString createGame(const QTemporaryDir &root, const QByteArray &metadata)
@@ -94,9 +96,30 @@ void GameScannerTests::reportsLaunchFailure()
     QVERIFY(!scanner.running());
 }
 
+void GameScannerTests::reportsGameErrorDetails()
+{
+    QTemporaryDir root;
+    QVERIFY(root.isValid());
+    const QString executable = QFileInfo(QCoreApplication::applicationFilePath()).fileName();
+    const QString directory = createGame(root, QString("{\"title\":\"Sample\",\"executable\":\"%1\"}")
+                                                   .arg(executable).toUtf8());
+    QVERIFY(!directory.isEmpty());
+    QVERIFY(QFile::copy(QCoreApplication::applicationFilePath(), QDir(directory).filePath(executable)));
+    GameScanner scanner(root.path());
+    qputenv("ARCADE_TEST_CHILD", "error");
+    scanner.launch(0);
+    QTRY_VERIFY_WITH_TIMEOUT(scanner.errorMessage().contains("profile save failed"), 5000);
+    qunsetenv("ARCADE_TEST_CHILD");
+    QVERIFY(scanner.errorMessage().contains("code 1"));
+}
+
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
+    if (qgetenv("ARCADE_TEST_CHILD") == "error") {
+        std::fputs("profile save failed\n", stderr);
+        return 1;
+    }
     if (qEnvironmentVariableIsSet("ARCADE_TEST_CHILD")) {
         QTimer::singleShot(500, &app, &QCoreApplication::quit);
         return app.exec();

@@ -26,12 +26,11 @@ packages can follow after the basic integration is proven.
 ## Decisions to make
 
 - Which Windows versions are supported for development and release?
-- What are the game metadata and player profile schemas and their versioning
-  and migration rules?
-- Where should writable user data live on each supported platform?
-- How will simultaneous processes safely update data, including after a crash?
-- How will SDK errors, missing data, corrupted data, and recovery be handled?
-- What is the SDK's supported C ABI, ownership model, and versioning policy?
+- How should game metadata be versioned and shared with a future web catalog?
+- How should profile migrations and recovery be handled beyond the initial
+  version 1 local profile?
+- Which non-Windows platforms will be supported and tested?
+- How should the C ABI evolve without breaking existing games?
 - What are the launcher behavior and user feedback when a game fails to start?
 - How will dependencies, licenses, and third-party game assets be managed?
 - What are the acceptance criteria for the first playable end-to-end slice?
