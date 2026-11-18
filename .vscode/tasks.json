@@ -3,33 +3,41 @@
     "tasks": [
         {
             "label": "Arcade: Build Debug",
-            "type": "process",
-            "command": "powershell",
+            "type": "shell",
+            "command": "powershell.exe",
             "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\setup.ps1", "-Configuration", "Debug"],
+            "options": { "cwd": "${workspaceFolder}" },
             "group": { "kind": "build", "isDefault": true },
-            "problemMatcher": "$msCompile"
+            "problemMatcher": "$msCompile",
+            "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
         },
         {
             "label": "Arcade: Build Release",
-            "type": "process",
-            "command": "powershell",
+            "type": "shell",
+            "command": "powershell.exe",
             "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\setup.ps1", "-Configuration", "Release"],
-            "problemMatcher": "$msCompile"
+            "options": { "cwd": "${workspaceFolder}" },
+            "problemMatcher": "$msCompile",
+            "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
         },
         {
             "label": "Arcade: Test Debug",
-            "type": "process",
-            "command": "powershell",
+            "type": "shell",
+            "command": "powershell.exe",
             "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\setup.ps1", "-Action", "Test", "-Configuration", "Debug"],
+            "options": { "cwd": "${workspaceFolder}" },
             "group": "test",
-            "problemMatcher": "$msCompile"
+            "problemMatcher": "$msCompile",
+            "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
         },
         {
             "label": "Arcade: Package Release",
-            "type": "process",
-            "command": "powershell",
+            "type": "shell",
+            "command": "powershell.exe",
             "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\setup.ps1", "-Action", "Package", "-Configuration", "Release"],
-            "problemMatcher": "$msCompile"
+            "options": { "cwd": "${workspaceFolder}" },
+            "problemMatcher": "$msCompile",
+            "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
         }
     ]
 }

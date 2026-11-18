@@ -4,7 +4,8 @@ A planned cross-platform arcade collection with a launcher, standalone games,
 and shared player statistics. The Qt launcher discovers games from metadata
 and starts SFML 2 and SFML 3 circle samples in separate processes. The SFML 3
 sample records playtime using the local desktop SDK, and the launcher displays
-combined and per-game playtime. Web support is planned.
+combined and per-game playtime. A separate web launcher includes browser
+samples and local statistics.
 Windows is the initial development target.
 
 ## Build on Windows
@@ -68,11 +69,42 @@ runtime dependencies. See the architecture's licensing section.
 
 ## VS Code and CI
 
-Install the Microsoft C/C++ extension. Set `QT_ROOT_DIR` before starting
-VS Code, or install a single kit under `C:\Qt`. Run **Arcade: Build Debug**,
-**Build Release**, **Test Debug**, or **Package Release** from Run Task.
-The Run and Debug panel has Debug Launcher and Run Release configurations.
-GitHub Actions builds and tests both configurations on Windows.
+Open the repository root in VS Code and install the Microsoft C/C++ extension.
+Install Qt using the [official Qt installer](https://www.qt.io/download-open-source).
+Select Qt 6.5 or newer, the **MSVC 2022 64-bit** kit, and the Qt Quick and
+Qt Quick Controls components. The selected kit must also provide Qt Test and
+`windeployqt.exe` (both are included in the standard desktop kit).
+
+Set the user environment variable to the kit root in PowerShell. For example,
+after installing Qt 6.8.3:
+
+```powershell
+[Environment]::SetEnvironmentVariable('QT_ROOT_DIR', 'C:\Qt\6.8.3\msvc2022_64', 'User')
+```
+
+Change the path to match your installation, then restart VS Code so its tasks
+inherit the variable. Verify the kit before building:
+
+```powershell
+Test-Path "$env:QT_ROOT_DIR\lib\cmake\Qt6\Qt6Config.cmake"
+Test-Path "$env:QT_ROOT_DIR\bin\windeployqt.exe"
+```
+
+Both commands should return `True`. `setup.ps1` passes this kit's `Qt6_DIR`
+directly to CMake, preventing an old build cache from selecting a different
+Qt installation. It also checks for Git, CMake, Visual Studio 2022 C++ tools,
+and CTest.
+
+Use **Terminal: Run Task** to run **Arcade: Build Debug**,
+**Arcade: Build Release**, **Arcade: Test Debug**, or
+**Arcade: Package Release**. Tasks run from the repository root and their
+output is shown in a dedicated terminal. The Run and Debug panel provides
+**Arcade: Debug Launcher** and **Arcade: Run Release**; each runs its matching
+build task first, then starts `Deployment\Debug\ArcadeLauncher.exe` or
+`Deployment\Release\ArcadeLauncher.exe` with that deployment directory as its
+working directory. If a launch fails before the debugger starts, resolve any
+failure reported by the pre-launch build task first. GitHub Actions builds
+and tests both configurations on Windows.
 
 ## Work on one game
 
@@ -128,7 +160,71 @@ only: check licenses and runtime dependencies before distribution.
 The shared C ABI is declared in `Source\ArcadeSDK\ArcadeSDK.h`. Link a game
 to `ArcadeSDK`, deploy its shared library beside the game, initialize with a
 stable lowercase game ID, check each result, and shut down on exit. See the
-architecture for profile format, limitations and the future web roadmap.
+architecture for profile format and limitations.
+
+## Web arcade and Android
+
+The separate web launcher offers a Phaser Snake game and a raw WebGL cube.
+Snake uses arrow keys or on-screen direction buttons; drag the cube with a
+mouse or touch and use its pause button to stop rotation. Each game has a
+return link. The launcher shows local playtime for both samples and the best
+Snake score. Playtime counts active, visible gameplay and is checkpointed
+periodically; closing or suspending the app can lose the latest interval.
+
+Install Node.js 22.12 or newer within the 22.x line, Node.js 24.x, or
+Node.js 26+ and run from the repository root:
+
+```powershell
+cd Source\Web
+npm.cmd ci
+npm.cmd run dev
+```
+
+Open the address printed by Vite. Run `npm.cmd run build` for a production
+build, `npm.cmd test` for unit tests, and `npm.cmd run test:e2e` for browser
+tests (install Playwright Chromium with `npx.cmd playwright install chromium`,
+or set `ARCADE_CHROMIUM_PATH` to an existing Chromium-based browser).
+Preview the production build with `npm.cmd run preview`.
+
+The PWA can cache the launcher and both games for offline use after its first
+successful online visit. Installation and service workers require HTTPS or
+localhost and a supporting browser. Statistics are stored in IndexedDB
+separately for each browser or installed Android app; they are not synced with
+the native launcher or other devices and can be removed with site data.
+Storage errors are reported in the app.
+
+For Android, install Android Studio and accept the Android SDK licenses
+yourself, then install the Android SDK and required platforms through its SDK
+Manager, including Android SDK Platform 35. Configure JDK 21 for Gradle
+(Android Studio's bundled JDK can be used if it is version 21), and set up an
+emulator or device. From `Source\Web` run:
+
+```powershell
+npm.cmd run android:sync
+npm.cmd run android:open
+```
+
+Build and run the project in Android Studio. Alternatively, with the SDK
+installed in its default Windows location, use a JDK 21 installation for a
+command-line debug build (adjust the JDK path for your machine):
+
+```powershell
+$env:JAVA_HOME = 'C:\Program Files\Android\openjdk\jdk-21.0.8'
+$env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"
+cd android
+.\gradlew.bat assembleDebug
+& "$env:ANDROID_HOME\platform-tools\adb.exe" devices -l
+& "$env:ANDROID_HOME\platform-tools\adb.exe" install -r app\build\outputs\apk\debug\app-debug.apk
+& "$env:ANDROID_HOME\platform-tools\adb.exe" shell am start -n com.arcadeportfolio.app/.MainActivity
+```
+
+The install and start commands require one connected, booted emulator or USB
+device. Hardware-accelerated emulators require firmware virtualization and a
+working hypervisor; consult Android Studio's emulator setup if an AVD stays
+offline. The debug APK has built on Windows and launched on an Android phone;
+gameplay and WebGL on real devices remain unverified. A wrapper is not a
+guarantee of compatibility. iOS, accounts and cross-device synchronization
+are future work.
 
 ## Planning documents
 

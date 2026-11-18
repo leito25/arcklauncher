@@ -5,7 +5,8 @@
 > current CMake workspace discovers and launches standalone SFML 2 and 3
 > circle samples. The desktop SDK stores local statistics; the SFML 3 sample
 > reports playtime on a normal exit. The launcher displays combined local
-> playtime; web support remains future work. The setup script creates
+> playtime. A separate web launcher provides two browser samples and local
+> statistics. The setup script creates
 > configuration-specific development deployments and a development-only ZIP;
 > release compliance is unfinished. See
 > [implementation todos](docs/todos.md).
@@ -16,8 +17,8 @@ A professional-grade, multi-platform arcade collection acting as a C++ portfolio
 *   **Games:** A planned collection of standalone desktop games and browser games.
 *   **SDK:** A C++ library with a C ABI for local desktop statistics; a separate
     browser SDK and optional synchronization service are future work.
-*   **Web launcher (planned):** A responsive website for desktop and mobile
-    browsers, with an optional mobile wrapper later.
+*   **Web launcher:** A responsive website with Phaser Snake, a raw WebGL cube,
+    local statistics, offline PWA resources and an Android Capacitor project.
 
 ---
 
@@ -117,25 +118,27 @@ a versioned migration, which is not implemented yet.
     game scores and achievements are future work. Game metadata includes a
     stable ID that matches the SDK profile key for per-game statistics.
 
-### D. Web and mobile (planned)
+### D. Web and mobile
 
-*   Build a separate responsive launcher, initially suggested as React,
-    TypeScript and Vite. It reads a web catalog and navigates to a selected
-    game's URL; games provide a way back to the launcher. Web games may use
-    Phaser, WebGL or another browser-compatible engine. Native SFML
-    executables cannot run directly in a browser.
-*   Keep stable game IDs and the same statistical meanings across platforms.
-    A future browser SDK would store data locally (for example, IndexedDB);
-    it cannot use the desktop DLL or its filesystem locks. Desktop metadata
-    currently describes executable filenames; a separate web catalog will
-    describe URLs until a shared versioned catalog is designed.
-*   Start with responsive layout, touch input and a small Phaser sample.
-    Consider a PWA for installation and, later, a Capacitor wrapper for Android
-    and iOS. Test WebGL, performance and input in real mobile browsers and
-    webviews; a wrapper alone does not ensure compatibility.
-*   Cross-device statistics require a future backend, account and explicit
-    conflict-resolution design. No web frontend, browser SDK, sync, accounts
-    or mobile app is implemented yet.
+*   The separate React, TypeScript and Vite app in `Source/Web` uses its own
+    catalog and hash routes. Its samples are Phaser Snake and a raw WebGL
+    rotating cube. Both support touch and return to the launcher; Snake also
+    supports arrow keys. Native SFML executables cannot run in a browser.
+*   A version 1 IndexedDB profile stores local playtime and Snake high scores
+    with stable game IDs and the desktop profile's statistical concepts.
+    Transactions protect concurrent updates; storage and schema errors are
+    reported without replacing invalid profiles. Data is separate per browser
+    or Android installation and cannot use the desktop DLL or its file locks.
+    Playtime counts active visible gameplay and is periodically checkpointed;
+    a crash or suspension may lose the latest interval.
+*   The PWA caches both samples and the launcher for offline use following an
+    initial online visit. Installability depends on browser support and HTTPS
+    or localhost. A Capacitor Android project packages the web build, but
+    the Android debug APK builds with JDK 21 and SDK Platform 35 and has
+    launched on an Android phone. Emulator and real-device gameplay, WebGL,
+    input and performance still need verification. iOS is future work.
+*   Cross-device statistics, accounts and synchronization require a future
+    backend and explicit conflict-resolution design.
 
 ---
 
@@ -171,18 +174,22 @@ a versioned migration, which is not implemented yet.
 *   [ ] **Task 5.3:** Packaging scripts (Windows `.zip`, macOS `.app`, Linux `AppImage`).
 
 ### Phase 6: Web and mobile
-*   [ ] Define a web catalog and implement a responsive launcher.
-*   [ ] Create a Phaser sample with touch controls and a return-to-launcher path.
-*   [ ] Implement local browser statistics using the shared concepts.
-*   [ ] Evaluate PWA installation and a mobile wrapper on real devices.
+*   [x] Define a web catalog and implement a responsive launcher.
+*   [x] Create Phaser Snake and raw WebGL cube samples with touch controls and a return-to-launcher path.
+*   [x] Implement local browser statistics using the shared concepts.
+*   [ ] Validate PWA installation and the Android wrapper on real devices.
 *   [ ] Design optional accounts and cross-device synchronization.
 
 ### Build, onboarding, and licensing decisions
 
-* Windows is the initial target. `setup.ps1` checks Git, CMake, Visual Studio
-  2022 C++ tools, and an installed Qt 6 MSVC 2022 kit; it does not install
-  tools or change system settings. It builds and deploys both sample games,
-  optionally tests them, and can create a Release development ZIP.
+* Windows is the initial target. Install Qt 6.5 or newer with its MSVC 2022
+  64-bit kit, Qt Quick/Qt Quick Controls, Qt Test, and `windeployqt`. Set the
+  user `QT_ROOT_DIR` environment variable to the kit root (for example
+  `C:\Qt\6.8.3\msvc2022_64`) and restart VS Code. `setup.ps1` checks Git,
+  CMake, Visual Studio 2022 C++ tools, and CTest; it passes that kit's exact
+  `Qt6_DIR` to CMake on every configure, avoiding stale cached Qt paths. It
+  builds and deploys both sample games, optionally tests them, and can create
+  a Release development ZIP.
 * Qt is installed separately using the official installer, not built from a
   Git submodule. CMake FetchContent retrieves pinned SFML 2.6.2 and 3.0.2
   sources; the versions use independent CMake build trees so their targets
@@ -191,8 +198,21 @@ a versioned migration, which is not implemented yet.
   launcher as processes, not through SFML objects.
 * `Deployment/Debug` and `Deployment/Release` keep runtime configurations
   separate. `windeployqt` copies Qt runtime plugins; CTest checks launcher
-  behavior and game deployment. VS Code tasks and launch configurations wrap
-  the script. GitHub Actions builds and tests Debug and Release on Windows.
+  behavior and game deployment. From the repository-root VS Code workspace,
+  **Arcade: Build Debug**, **Arcade: Build Release**, **Arcade: Test Debug**
+  and **Arcade: Package Release** invoke `setup.ps1` in a dedicated terminal
+  whose working directory is the repository root. The `Arcade: Debug
+  Launcher` and `Arcade: Run Release` launch configurations run the
+  corresponding build task first, then start the executable under
+  `Deployment/Debug` or `Deployment/Release` with that folder as the working
+  directory. Install the Microsoft C/C++ extension and make the Qt MSVC kit
+  available through `QT_ROOT_DIR` or as the single matching kit under
+  `C:\Qt`; if setup fails, resolve its reported prerequisite/build error
+  before launching. `setup.ps1` passes the selected kit's `Qt6_DIR` to CMake
+  on every configure, so an existing build cache cannot silently select a
+  different Qt installation. Set `QT_ROOT_DIR` to the kit root (for example
+  `C:\Qt\6.8.3\msvc2022_64`) and restart VS Code after changing the user
+  environment. GitHub Actions builds and tests Debug and Release on Windows.
 * Each game template can also be opened as its own VS Code folder. Game-only
   builds use separate Debug and Release trees, require no Qt, and stage their
   own executable, metadata and dependencies. **Game: Debug** and **Game: Run

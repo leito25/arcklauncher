@@ -59,10 +59,12 @@ $buildRoot = Join-Path $root "build\windows\$Configuration"
 $mainBuild = Join-Path $buildRoot 'main'
 $sfml2Build = Join-Path $buildRoot 'sfml2'
 $deployment = Join-Path $root "Deployment\$Configuration"
+$qtCMakeConfig = Join-Path $QtPath 'lib\cmake\Qt6'
 $generator = @('-G', 'Visual Studio 17 2022', '-A', 'x64')
 
 Invoke-Tool 'cmake' (@('-S', $root, '-B', $mainBuild) + $generator +
-    @("-DCMAKE_PREFIX_PATH=$QtPath", "-DARCADE_DEPLOYMENT_DIR=$deployment", '-DBUILD_TESTING=ON'))
+    @("-DCMAKE_PREFIX_PATH=$QtPath", "-DQt6_DIR:PATH=$qtCMakeConfig",
+        "-DARCADE_DEPLOYMENT_DIR=$deployment", '-DBUILD_TESTING=ON'))
 Invoke-Tool 'cmake' @('--build', $mainBuild, '--config', $Configuration)
 Invoke-Tool 'cmake' (@('-S', (Join-Path $root 'Source\Games\TemplateSFML2'), '-B', $sfml2Build) + $generator +
     @("-DARCADE_DEPLOYMENT_DIR=$deployment", '-DBUILD_TESTING=ON'))

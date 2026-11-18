@@ -21,11 +21,13 @@
 - [ ] Display profile statistics in the launcher.
 - [ ] Design profile migrations and cross-platform validation ([#4](https://github.com/leito25/arcklauncher/issues/4), [#5](https://github.com/leito25/arcklauncher/issues/5)).
 
-## Web and mobile (planned)
+## Web and mobile
 
-- [ ] Design a web game catalog and responsive launcher.
-- [ ] Build a browser game sample with touch controls and local statistics.
-- [ ] Evaluate PWA and mobile wrappers; design optional cross-device sync.
+- [x] Add a web game catalog and responsive launcher.
+- [x] Build Phaser Snake and WebGL cube samples with touch controls and local statistics.
+- [x] Add offline PWA resources and a Capacitor Android project.
+- [ ] Build and validate the Android wrapper and PWA on real devices.
+- [ ] Consider an iOS wrapper and design optional cross-device sync.
 
 ## Distribution
 

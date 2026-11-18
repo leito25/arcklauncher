@@ -2,6 +2,16 @@
 build/
 Deployment/
 out/
+Source/Web/node_modules/
+Source/Web/dist/
+Source/Web/coverage/
+Source/Web/test-results/
+Source/Web/playwright-report/
+Source/Web/*.tsbuildinfo
+Source/Web/android/.gradle/
+Source/Web/android/build/
+Source/Web/android/app/build/
+Source/Web/android/local.properties
 
 # Editor and OS files
 .vs/
