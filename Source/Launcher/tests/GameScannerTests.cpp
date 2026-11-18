@@ -17,6 +17,7 @@ class GameScannerTests : public QObject
 private slots:
     void discoversAndLaunchesGame();
     void reportsInvalidMetadataAndMissingExecutable();
+    void reportsDuplicateGameIds();
     void reportsLaunchFailure();
     void reportsGameErrorDetails();
 };
@@ -38,7 +39,7 @@ void GameScannerTests::discoversAndLaunchesGame()
     QTemporaryDir root;
     QVERIFY(root.isValid());
     const QString executable = QFileInfo(QCoreApplication::applicationFilePath()).fileName();
-    const QByteArray metadata = QString("{\"title\":\"Circle Sample\",\"executable\":\"%1\"}")
+    const QByteArray metadata = QString("{\"id\":\"circle-sample\",\"title\":\"Circle Sample\",\"executable\":\"%1\"}")
                                     .arg(executable).toUtf8();
     const QString directory = createGame(root, metadata);
     QVERIFY(!directory.isEmpty());
@@ -47,6 +48,7 @@ void GameScannerTests::discoversAndLaunchesGame()
     GameScanner scanner(root.path());
     QCOMPARE(scanner.rowCount(), 1);
     QCOMPARE(scanner.data(scanner.index(0), Qt::UserRole + 1).toString(), QString("Circle Sample"));
+    QCOMPARE(scanner.data(scanner.index(0), Qt::UserRole + 2).toString(), QString("circle-sample"));
     QVERIFY(scanner.errorMessage().isEmpty());
 
     QSignalSpy stateChanges(&scanner, &GameScanner::runningChanged);
@@ -71,11 +73,42 @@ void GameScannerTests::reportsInvalidMetadataAndMissingExecutable()
 
     QFile metadata(QDir(directory).filePath("meta.json"));
     QVERIFY(metadata.open(QIODevice::WriteOnly | QIODevice::Truncate));
-    metadata.write("{\"title\":\"Missing\", \"executable\":\"missing.exe\"}");
+    metadata.write("{\"id\":\"Bad ID\", \"title\":\"Bad\", \"executable\":\"missing.exe\"}");
+    metadata.close();
+    scanner.refresh();
+    QCOMPARE(scanner.rowCount(), 0);
+    QVERIFY(scanner.errorMessage().contains("Invalid game metadata"));
+
+    QVERIFY(metadata.open(QIODevice::WriteOnly | QIODevice::Truncate));
+    metadata.write("{\"id\":\"sample\", \"title\":\"Missing\", \"executable\":\"missing.exe\"}");
     metadata.close();
     scanner.refresh();
     QCOMPARE(scanner.rowCount(), 0);
     QVERIFY(scanner.errorMessage().contains("Game executable not found"));
+}
+
+void GameScannerTests::reportsDuplicateGameIds()
+{
+    QTemporaryDir root;
+    QVERIFY(root.isValid());
+    const QString executable = QFileInfo(QCoreApplication::applicationFilePath()).fileName();
+    for (const QString &name : {QStringLiteral("first"), QStringLiteral("second")}) {
+        QDir directory(root.path());
+        QVERIFY(directory.mkdir(name));
+        const QString gameDirectory = directory.filePath(name);
+        QFile metadata(QDir(gameDirectory).filePath("meta.json"));
+        QVERIFY(metadata.open(QIODevice::WriteOnly));
+        const QByteArray contents =
+            QString("{\"id\":\"duplicate\",\"title\":\"%1\",\"executable\":\"%2\"}")
+                .arg(name, executable).toUtf8();
+        QCOMPARE(metadata.write(contents), qint64(contents.size()));
+        QVERIFY(QFile::copy(QCoreApplication::applicationFilePath(),
+                            QDir(gameDirectory).filePath(executable)));
+    }
+
+    GameScanner scanner(root.path());
+    QCOMPARE(scanner.rowCount(), 1);
+    QVERIFY(scanner.errorMessage().contains("Duplicate game ID"));
 }
 
 void GameScannerTests::reportsLaunchFailure()
@@ -83,7 +116,7 @@ void GameScannerTests::reportsLaunchFailure()
     QTemporaryDir root;
     QVERIFY(root.isValid());
     const QString executable = QFileInfo(QCoreApplication::applicationFilePath()).fileName();
-    const QString directory = createGame(root, QString("{\"title\":\"Sample\",\"executable\":\"%1\"}")
+    const QString directory = createGame(root, QString("{\"id\":\"sample\",\"title\":\"Sample\",\"executable\":\"%1\"}")
                                                    .arg(executable).toUtf8());
     QVERIFY(!directory.isEmpty());
     const QString path = QDir(directory).filePath(executable);
@@ -101,7 +134,7 @@ void GameScannerTests::reportsGameErrorDetails()
     QTemporaryDir root;
     QVERIFY(root.isValid());
     const QString executable = QFileInfo(QCoreApplication::applicationFilePath()).fileName();
-    const QString directory = createGame(root, QString("{\"title\":\"Sample\",\"executable\":\"%1\"}")
+    const QString directory = createGame(root, QString("{\"id\":\"sample\",\"title\":\"Sample\",\"executable\":\"%1\"}")
                                                    .arg(executable).toUtf8());
     QVERIFY(!directory.isEmpty());
     QVERIFY(QFile::copy(QCoreApplication::applicationFilePath(), QDir(directory).filePath(executable)));

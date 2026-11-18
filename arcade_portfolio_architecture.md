@@ -4,9 +4,10 @@
 > architecture. Windows is the first development target. The
 > current CMake workspace discovers and launches standalone SFML 2 and 3
 > circle samples. The desktop SDK stores local statistics; the SFML 3 sample
-> reports playtime on a normal exit. Statistics display and web support remain
-> future work. The setup script creates configuration-specific development
-> deployments and a development-only ZIP; release compliance is unfinished. See
+> reports playtime on a normal exit. The launcher displays combined local
+> playtime; web support remains future work. The setup script creates
+> configuration-specific development deployments and a development-only ZIP;
+> release compliance is unfinished. See
 > [implementation todos](docs/todos.md).
 
 ## 1. Project Overview
@@ -38,7 +39,7 @@ ArcadeWorkspace/
     └── games/
         └── Tetris/            <-- planned deployment example
             ├── Tetris.exe     
-            ├── meta.json      <-- Launcher metadata (title, executable)
+            ├── meta.json      <-- Launcher metadata (ID, title, executable)
             └── assets/        
 ```
 
@@ -94,12 +95,18 @@ a versioned migration, which is not implemented yet.
 ```
 
 ### B. The Qt6 Launcher (Frontend)
-*   **Role:** The entry point, currently displaying a list of available games.
+*   **Role:** The entry point, displaying available games in a responsive grid
+    with combined and per-game local playtime.
 *   **Implementation:** C++ backend for OS logic, QML for GPU-accelerated UI animations.
 *   **Mechanics:** 
     *   Uses Qt directory and JSON APIs to scan `games/` relative to the launcher for `meta.json` files.
     *   Uses `QProcess` to launch games as separate OS-level processes.
-    *   Future work: read profile statistics and refresh the UI when they change.
+    *   Watches the local `profile.json`, validates version 1 playtime fields,
+        and refreshes global and per-game playtime when the file changes.
+        Cards show whole minutes or "Not played yet" when no entry exists.
+    *   Requires a unique metadata ID using lowercase ASCII letters, digits,
+        `.`, `_`, and `-`; the ID must match the SDK profile key. Missing,
+        invalid, and duplicate IDs are reported and excluded from the grid.
 
 ### C. The Games (Executables)
 *   **Role:** Standalone experiences.
@@ -107,9 +114,8 @@ a versioned migration, which is not implemented yet.
     exactly one version.
 *   **Mechanics:** Completely independent of the launcher. The SFML 3 sample
     reports elapsed whole seconds on normal exit; SFML 2 integration and real
-    game scores and achievements are future work. The current desktop metadata
-    does not yet include a game ID; add it before connecting launcher entries to
-    profile statistics.
+    game scores and achievements are future work. Game metadata includes a
+    stable ID that matches the SDK profile key for per-game statistics.
 
 ### D. Web and mobile (planned)
 
@@ -143,9 +149,9 @@ a versioned migration, which is not implemented yet.
 ### Phase 2: The Launcher Framework
 *   [x] **Task 2.1:** Setup Qt6/QML project in CMake.
 *   [x] **Task 2.2:** Write the C++ `GameScanner` class to read `meta.json` files from the `games/` folder.
-*   [ ] **Task 2.3:** Build the QML UI to bind the `GameScanner` data to a visual grid or carousel.
+*   [x] **Task 2.3:** Build the QML UI to bind the `GameScanner` data to a visual grid or carousel.
 *   [x] **Task 2.4:** Implement `QProcess` in the C++ backend to launch executables.
-*   [ ] **Task 2.5:** Implement `QFileSystemWatcher` to read `profile.json` and display global playtime in the UI.
+*   [x] **Task 2.5:** Implement `QFileSystemWatcher` to read `profile.json` and display global playtime in the UI.
 
 ### Phase 3: Proving the End-to-End Loop
 *   [x] **Task 3.1:** Create the `Template SFML3` project using SFML 3.0 via `FetchContent` in CMake.

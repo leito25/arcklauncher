@@ -23,7 +23,7 @@ endif()
 
 set(game_deployment_dir "${ARCADE_DEPLOYMENT_DIR}/games/TemplateSFML")
 file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/meta.json"
-    CONTENT "{\n  \"title\": \"Circle Sample (SFML 3)\",\n  \"executable\": \"$<TARGET_FILE_NAME:TemplateSFML>\"\n}\n"
+    CONTENT "{\n  \"id\": \"template-sfml3\",\n  \"title\": \"Circle Sample (SFML 3)\",\n  \"executable\": \"$<TARGET_FILE_NAME:TemplateSFML>\"\n}\n"
 )
 if(BUILD_TESTING)
     add_test(NAME SFML3Deployment

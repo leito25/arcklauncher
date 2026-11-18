@@ -28,6 +28,7 @@ signals:
 
 private:
     struct Game {
+        QString id;
         QString title;
         QString executable;
         QString directory;

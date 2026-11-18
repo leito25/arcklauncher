@@ -3,8 +3,9 @@
 A planned cross-platform arcade collection with a launcher, standalone games,
 and shared player statistics. The Qt launcher discovers games from metadata
 and starts SFML 2 and SFML 3 circle samples in separate processes. The SFML 3
-sample records playtime using the local desktop SDK. Statistics display and
-web support are planned. Windows is the initial development target.
+sample records playtime using the local desktop SDK, and the launcher displays
+combined and per-game playtime. Web support is planned.
+Windows is the initial development target.
 
 ## Build on Windows
 
@@ -37,14 +38,22 @@ does not change the machine or user policy.
 Select **Play** on either sample; closing the game returns to the launcher.
 On normal exit, the SFML 3 sample records whole seconds in
 `%LOCALAPPDATA%\ArcadePortfolio\profile.json`. The SFML 2 sample does not yet
-use the SDK. If saving fails the sample exits with an error; the launcher
-reports the nonzero exit code and the game's error details.
+use the SDK. The launcher watches this profile and displays total playtime
+across games and playtime on each game card; updates from the SDK are
+reflected while the launcher is open. Times are shown in whole minutes; games
+without a profile entry show **Not played yet**.
+If saving fails the sample exits with an error; the launcher reports the
+nonzero exit code and the game's error details.
 Both games also run independently from their folders in
 `.\Deployment\Debug\games\`. The launcher scans `games` relative to its own executable, not the
-current working directory. Each game folder needs a `meta.json` with a
-nonempty `title` and an `executable` filename in that same folder. The sample
-metadata is generated and copied to the deployment folder by CMake. Use
-**Refresh games** to rescan after adding or fixing a game.
+current working directory. Each game folder needs a `meta.json` with a unique
+lowercase `id`, a nonempty `title`, and an `executable` filename in that same
+folder. IDs may contain lowercase ASCII letters, digits, `.`, `_`, and `-`.
+The ID must match the game's SDK ID for per-game statistics to appear.
+Games with missing, invalid, or duplicate IDs are reported and not added.
+The sample metadata is generated and copied to the deployment folder by CMake;
+rebuild existing deployments to update older metadata. Use **Refresh games**
+to rescan after adding or fixing a game.
 
 Build and test Release, or create a development ZIP:
 

@@ -5,9 +5,25 @@
 #include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QSet>
 
 namespace {
 constexpr int TitleRole = Qt::UserRole + 1;
+constexpr int GameIdRole = Qt::UserRole + 2;
+
+bool validGameId(const QString &id)
+{
+    if (id.isEmpty())
+        return false;
+    for (const QChar character : id) {
+        if (!((character >= QLatin1Char('a') && character <= QLatin1Char('z')) ||
+              (character >= QLatin1Char('0') && character <= QLatin1Char('9')) ||
+              character == QLatin1Char('.') || character == QLatin1Char('_') ||
+              character == QLatin1Char('-')))
+            return false;
+    }
+    return true;
+}
 }
 
 GameScanner::GameScanner(const QString &gamesDirectory, QObject *parent)
@@ -46,12 +62,14 @@ QVariant GameScanner::data(const QModelIndex &index, int role) const
         return {};
     if (role == TitleRole)
         return m_games.at(index.row()).title;
+    if (role == GameIdRole)
+        return m_games.at(index.row()).id;
     return {};
 }
 
 QHash<int, QByteArray> GameScanner::roleNames() const
 {
-    return {{TitleRole, "gameTitle"}};
+    return {{TitleRole, "gameTitle"}, {GameIdRole, "gameId"}};
 }
 
 bool GameScanner::running() const
@@ -84,6 +102,7 @@ void GameScanner::refresh()
         setError(tr("Games folder not found: %1").arg(m_gamesDirectory));
     } else {
         const auto folders = root.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
+        QSet<QString> gameIds;
         for (const QFileInfo &folder : folders) {
             QFile metadata(QDir(folder.absoluteFilePath()).filePath("meta.json"));
             if (!metadata.open(QIODevice::ReadOnly)) {
@@ -93,12 +112,18 @@ void GameScanner::refresh()
             QJsonParseError parseError;
             const QJsonDocument document = QJsonDocument::fromJson(metadata.readAll(), &parseError);
             const QJsonObject object = document.object();
+            const QString id = object.value("id").toString();
             const QString title = object.value("title").toString().trimmed();
             const QString executable = object.value("executable").toString();
             if (parseError.error != QJsonParseError::NoError || !document.isObject() ||
-                title.isEmpty() || executable.isEmpty() || executable == "." || executable == ".." ||
+                !validGameId(id) || title.isEmpty() || executable.isEmpty() ||
+                executable == "." || executable == ".." ||
                 executable.contains('/') || executable.contains('\\') || QDir::isAbsolutePath(executable)) {
                 errors.append(tr("Invalid game metadata: %1").arg(metadata.fileName()));
+                continue;
+            }
+            if (gameIds.contains(id)) {
+                errors.append(tr("Duplicate game ID in metadata: %1").arg(id));
                 continue;
             }
             const QString path = QDir(folder.absoluteFilePath()).filePath(executable);
@@ -106,7 +131,8 @@ void GameScanner::refresh()
                 errors.append(tr("Game executable not found: %1").arg(path));
                 continue;
             }
-            games.append({title, path, folder.absoluteFilePath()});
+            games.append({id, title, path, folder.absoluteFilePath()});
+            gameIds.insert(id);
         }
         setError(errors.join('\n'));
     }

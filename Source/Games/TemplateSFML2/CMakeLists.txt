@@ -24,7 +24,7 @@ add_executable(TemplateSFML2 main.cpp)
 target_link_libraries(TemplateSFML2 PRIVATE sfml-graphics)
 set(game_deployment_dir "${ARCADE_DEPLOYMENT_DIR}/games/TemplateSFML2")
 file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/meta.json"
-    CONTENT "{\n  \"title\": \"Circle Sample (SFML 2)\",\n  \"executable\": \"$<TARGET_FILE_NAME:TemplateSFML2>\"\n}\n"
+    CONTENT "{\n  \"id\": \"template-sfml2\",\n  \"title\": \"Circle Sample (SFML 2)\",\n  \"executable\": \"$<TARGET_FILE_NAME:TemplateSFML2>\"\n}\n"
 )
 add_custom_target(DeployTemplateSFML2 ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory "${game_deployment_dir}"

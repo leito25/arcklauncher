@@ -31,46 +31,66 @@ ApplicationWindow {
             font.pixelSize: 30
             font.bold: true
         }
-        Label {
-            text: "Discover a game and press play."
-            color: "#a6b5ca"
-            font.pixelSize: 15
+        RowLayout {
+            Layout.fillWidth: true
+
+            Label {
+                text: "Discover a game and press play."
+                color: "#a6b5ca"
+                font.pixelSize: 15
+                Layout.fillWidth: true
+            }
+            Label {
+                text: "Total playtime  " + profileStats.formattedPlaytime
+                color: "#7dd3fc"
+                font.pixelSize: 15
+                font.bold: true
+            }
         }
 
-        ListView {
+        GridView {
             id: gameList
             Layout.fillWidth: true
             Layout.fillHeight: true
-            spacing: 12
             clip: true
             model: games
+            cellWidth: width / Math.max(1, Math.floor(width / 220))
+            cellHeight: 150
             delegate: Rectangle {
                 required property int index
                 required property string gameTitle
-                width: gameList.width
-                height: 100
+                required property string gameId
+                width: gameList.cellWidth - 12
+                height: gameList.cellHeight - 12
                 radius: 12
                 color: "#1d2b42"
 
-                RowLayout {
+                ColumnLayout {
                     anchors.fill: parent
-                    anchors.margins: 18
-                    spacing: 18
+                    anchors.margins: 16
+                    spacing: 6
                     Rectangle {
-                        width: 52
-                        height: 52
-                        radius: 26
+                        Layout.preferredWidth: 32
+                        Layout.preferredHeight: 4
+                        radius: 3
                         color: "#38bdf8"
                     }
                     Label {
                         text: gameTitle
                         color: "#f8fafc"
-                        font.pixelSize: 20
+                        font.pixelSize: 18
                         font.bold: true
                         Layout.fillWidth: true
+                        elide: Text.ElideRight
+                    }
+                    Label {
+                        text: profileStats.gamePlaytimes[gameId] || "Not played yet"
+                        color: "#a6b5ca"
+                        font.pixelSize: 13
                     }
                     Button {
                         text: "Play"
+                        Layout.alignment: Qt.AlignRight
                         onClicked: games.launch(index)
                     }
                 }
@@ -85,8 +105,10 @@ ApplicationWindow {
 
         Label {
             Layout.fillWidth: true
-            visible: games.errorMessage.length > 0
-            text: games.errorMessage
+            visible: games.errorMessage.length > 0 || profileStats.errorMessage.length > 0
+            text: [games.errorMessage, profileStats.errorMessage].filter(function(message) {
+                return message.length > 0
+            }).join("\n")
             color: "#fca5a5"
             wrapMode: Text.Wrap
         }
