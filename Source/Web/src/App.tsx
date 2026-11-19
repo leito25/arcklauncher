@@ -5,8 +5,8 @@ import { formatPlaytime, readProfile, subscribeToStats } from "./stats";
 import type { Profile } from "./stats";
 import { GameSession } from "./session";
 
-const SnakeGame = lazy(() => import("./SnakeGame"));
-const CubeGame = lazy(() => import("./CubeGame"));
+const SnakeGame = lazy(() => import("./games/snake/SnakeGame"));
+const CubeGame = lazy(() => import("./games/cube/CubeGame"));
 
 const emptyProfile: Profile = { schemaVersion: 1, games: {} };
 

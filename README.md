@@ -186,6 +186,43 @@ tests (install Playwright Chromium with `npx.cmd playwright install chromium`,
 or set `ARCADE_CHROMIUM_PATH` to an existing Chromium-based browser).
 Preview the production build with `npm.cmd run preview`.
 
+### Add a web game
+
+Each browser game has a folder under `Source\Web\src\games`, with its
+component, game logic, tests, and any game-specific assets. These folders
+share the web launcher's Vite project; they are not independent builds.
+
+1. Add a folder and game component, using `games\snake` or `games\cube` as
+   an example. The game must run in a browser; native SFML executables cannot
+   run directly in one.
+2. Add a unique, stable lowercase ID, title, description, and hash route to
+   `src\catalog.ts`. In `src\App.tsx`, add a lazy import, map the route to
+   the game ID, and render the component in `GameView`.
+3. Use the `active` and `setPlaying` props to pause gameplay when hidden and
+   stop playtime tracking when gameplay pauses or ends. Follow Snake's
+   `updateStats` usage to record a high score if needed, and add its display
+   to the game card. Keep IDs stable so existing statistics remain associated
+   with the game.
+4. Add unit and browser tests and run the web build and tests above. Check
+   touch controls, navigation, statistics, and offline behavior. If assets use
+   extensions not included by the Workbox `globPatterns` in `vite.config.ts`,
+   update that list as needed for offline use.
+
+### Publish the web arcade
+
+The GitHub Pages workflow in `.github\workflows\pages.yml` builds and tests
+the web app on pushes to `main`, and can also be started manually from the
+Actions tab. In the repository's **Settings > Pages**, choose **GitHub
+Actions** as the source. Push the workflow and web source to `main` and check
+the workflow's deployment result. The expected project URL is
+`https://leito25.github.io/arcklauncher/`; the workflow's deployment output
+provides the actual URL. The current relative Vite base supports the project
+subpath and the Android build.
+
+GitHub Pages serves static files and makes the site public. GitHub Free
+requires a public repository for Pages. It does not provide a backend or
+cross-device profile synchronization.
+
 The PWA can cache the launcher and both games for offline use after its first
 successful online visit. Installation and service workers require HTTPS or
 localhost and a supporting browser. Statistics are stored in IndexedDB

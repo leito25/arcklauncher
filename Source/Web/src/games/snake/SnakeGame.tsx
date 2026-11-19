@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Phaser from "phaser";
 import { boardSize, changeDirection, newSnake, stepSnake } from "./snake";
 import type { Direction, SnakeState } from "./snake";
-import { updateStats } from "./stats";
+import { updateStats } from "../../stats";
 
 type Props = { active: boolean; reportError: (error: unknown) => void; setPlaying: (playing: boolean) => void };
 const size = 512;
